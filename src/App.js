@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import "./styles.css";
-import initSqlJs from "sql.js";
+import React, { useState, useEffect } from 'react';
+import './styles.css';
+import initSqlJs from 'sql.js';
 
 // Required to let webpack 4 know it needs to copy the wasm file to our assets
-import sqlWasm from "!!file-loader?name=sql-wasm-[contenthash].wasm!sql.js/dist/sql-wasm.wasm";
+import sqlWasm from '!!file-loader?name=sql-wasm-[contenthash].wasm!sql.js/dist/sql-wasm.wasm';
 
 export default function App() {
   const [db, setDb] = useState(null);
@@ -15,8 +15,15 @@ export default function App() {
     // see ../craco.config.js
     try {
       const SQL = await initSqlJs({ locateFile: () => sqlWasm });
-      setDb(new SQL.Database());
+      fetch('./database1.sqlite3').then(async (res) => {
+        console.log(res);
+
+        const db = new SQL.Database(new Uint8Array(await res.arrayBuffer()));
+        setDb(db);
+      });
+      // setDb(new SQL.Database());
     } catch (err) {
+      console.log(err);
       setError(err);
     }
   }, []);
@@ -48,15 +55,15 @@ function SQLRepl({ db }) {
   }
 
   return (
-    <div className="App">
+    <div className='App'>
       <h1>React SQL interpreter</h1>
 
       <textarea
         onChange={(e) => exec(e.target.value)}
-        placeholder="Enter some SQL. No inspiration ? Try “select sqlite_version()”"
+        placeholder='Enter some SQL. No inspiration ? Try “select sqlite_version()”'
       ></textarea>
 
-      <pre className="error">{(error || "").toString()}</pre>
+      <pre className='error'>{(error || '').toString()}</pre>
 
       <pre>
         {
