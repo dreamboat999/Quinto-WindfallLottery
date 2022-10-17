@@ -4,13 +4,16 @@
     align-items: center;
 
     textarea {
-      padding: 8px;
+      color: white;
+      padding: 8px 8px 0px;
       outline: none;
-      border-radius: 8px;
+      border-radius: 3px;
       border: 1px solid gray;
       max-width: 640px;
       width: 100%;
+      line-height: 16px;
       transition: all 0.15s ease-in-out;
+      background: transparent;
 
       &:focus {
         border-color: var(--primary);

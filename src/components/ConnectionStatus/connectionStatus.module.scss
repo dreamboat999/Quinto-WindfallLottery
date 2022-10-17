@@ -1,0 +1,21 @@
+.connectionStatus :global {
+  width: 200px;
+  * {
+    vertical-align: middle;
+  }
+  .dot {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    margin-left: 25px;
+    margin-right: 8px;
+    display: inline-block;
+  }
+  .red {
+    background-color: red;
+  }
+
+  .green {
+    background-color: rgb(24, 192, 24);
+  }
+}

@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700&display=swap');
 @import './mixin/button';
 
 body {
-  background-color: white;
+  background-color: #1f1f1f;
   font-family: 'Urbanist';
+  color: white;
 }
 
 * {
@@ -15,8 +16,8 @@ body {
 }
 
 :root {
-  --primary: #1c6ea4;
-  --theme: #14161f;
+  --primary: rgba(0, 136, 204);
+  --theme: rgba(121, 121, 121, 0.486);
 }
 
 h1 {
@@ -33,4 +34,39 @@ h1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.error {
+  color: rgb(255, 0, 0);
+}
+
+.scroll {
+  overflow-y: scroll;
+  display: inline-block;
+
+  .inner {
+    height: 300%;
+    width: 100%;
+    content: '.';
+  }
+
+  // Simple
+  &--simple::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &--simple::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.1);
+  }
+  &--simple::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  &--simple::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+  &--simple::-webkit-scrollbar-thumb:active {
+    background: rgba(255, 255, 255, 0.9);
+  }
 }

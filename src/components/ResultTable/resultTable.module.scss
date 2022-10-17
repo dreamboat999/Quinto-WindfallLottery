@@ -1,25 +1,31 @@
 .resultTable :global {
-  padding: 8px;
   width: 100%;
   height: fit-content;
+  border-collapse: collapse;
+  border-radius: 3px;
   thead {
     background-color: var(--primary);
+    font-weight: bold;
     tr th {
       padding: 8px;
     }
   }
-  td {
+  td,
+  th {
     text-align: center;
+    border: 1px solid #aaa;
   }
   tbody {
     tr {
-      padding: 8px 0;
       &:nth-child(odd) {
         background-color: #0001;
       }
       &:nth-child(even) {
         background-color: #0004;
       }
+    }
+    td {
+      padding: 8px;
     }
   }
 }

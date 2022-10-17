@@ -2,24 +2,23 @@ button {
   font-size: 16px;
   line-height: 16px;
   border: 1px solid var(--primary);
-  border-radius: 1000px;
-  padding: 8px 24px;
+  border-radius: 3px;
+  padding: 1rem 1.75rem;
   cursor: pointer;
   transition: all 0.25s ease-in-out;
 }
 
 button.filled {
-  background-color: var(--primary);
+  background-color: transparent;
   color: white;
   &:hover {
-    background-color: transparent;
-    color: var(--primary);
+    background-color: var(--theme);
   }
 }
 
 button.outlined {
   background-color: transparent;
-  color: var(--primary);
+  // color: var(--primary);
 }
 
 button.small {
