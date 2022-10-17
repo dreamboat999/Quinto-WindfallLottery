@@ -1,0 +1,21 @@
+.tableList :global {
+  display: grid;
+  width: 240px;
+  padding: 12px 0px;
+  height: 100%;
+
+  border: 1px solid gray;
+  box-shadow: 0px 0px 4px 3px #0003;
+
+  list-style-type: none;
+  li {
+    text-decoration: underline;
+    padding: 8px 12px;
+    cursor: pointer;
+
+    &:hover,
+    &.active {
+      background-color: lightgray;
+    }
+  }
+}

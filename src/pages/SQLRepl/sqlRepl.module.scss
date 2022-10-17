@@ -1,0 +1,29 @@
+.sqlRepl :global {
+  header {
+    display: flex;
+    align-items: center;
+
+    textarea {
+      padding: 8px;
+      outline: none;
+      border-radius: 8px;
+      border: 1px solid gray;
+      max-width: 640px;
+      width: 100%;
+      transition: all 0.15s ease-in-out;
+
+      &:focus {
+        border-color: var(--primary);
+      }
+    }
+    button {
+      margin-left: 24px;
+    }
+  }
+
+  main {
+    padding-top: 24px;
+    display: flex;
+    gap: 12px;
+  }
+}
