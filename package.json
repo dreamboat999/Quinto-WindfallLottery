@@ -1,7 +1,7 @@
 {
   "name": "react-sqljs-demo",
   "version": "1.0.0",
-  "description": "sql.js + react example starter project",
+  "description": "sql.js + react project",
   "keywords": [
     "react",
     "starter"
@@ -10,7 +10,6 @@
   "license": "MIT",
   "dependencies": {
     "react": "^17.0.2",
-    "react-bootstrap-table-next": "^4.0.3",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "react-spinners": "^0.13.6",
