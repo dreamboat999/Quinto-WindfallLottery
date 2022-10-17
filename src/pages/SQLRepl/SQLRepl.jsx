@@ -94,10 +94,18 @@ const SQLRepl = ({ db }) => {
           <button onClick={handleLoadDB} className='filled'>
             Load Schema
           </button>
-          <button onClick={handleConnect} className='filled'>
+          <button
+            onClick={handleConnect}
+            className='filled'
+            disabled={connected !== 1}
+          >
             Send request
           </button>
-          <button onClick={handleDisconnect} className='filled'>
+          <button
+            onClick={handleDisconnect}
+            className='filled'
+            disabled={connected !== 1}
+          >
             Disconnect
           </button>
           <ConnectionStatus readyState={connected} />
