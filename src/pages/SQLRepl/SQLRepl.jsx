@@ -6,7 +6,6 @@ import ConnectionStatus from 'components/ConnectionStatus';
 import { validateJson, isJson } from 'utils/validateJson.js';
 import testJson1 from 'utils/test1.json';
 import styles from './sqlRepl.module.scss';
-import { createNoSubstitutionTemplateLiteral } from 'typescript';
 /**
  * A simple SQL read-eval-print-loop
  * @param {{db: import("sql.js").Database}} props
