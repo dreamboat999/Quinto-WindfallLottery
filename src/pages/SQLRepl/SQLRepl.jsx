@@ -42,6 +42,8 @@ const SQLRepl = ({ db }) => {
         "SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
       )
     );
+    const initApiCall = { method: 'open_session' };
+    setTimeout(() => ws.send(JSON.stringify(initApiCall)), 500);
   };
 
   const getPrimaryKeys = () => {
@@ -83,8 +85,6 @@ const SQLRepl = ({ db }) => {
   };
   ws.onopen = (event) => {
     setConnected(ws.readyState);
-    const initApiCall = { method: 'open_session' };
-    setTimeout(() => ws.send(JSON.stringify(initApiCall)), 500);
   };
   ws.onmessage = async function (event) {
     setConnected(ws.readyState);
@@ -101,7 +101,7 @@ const SQLRepl = ({ db }) => {
     console.log(json);
     try {
       const resultSQL = validateJson(json, primaryKeyList);
-      for (let item of resultSQL) await db.exec(item);
+      if (db) for (let item of resultSQL) await db.exec(item);
     } catch (err) {
       console.log(err);
     }
