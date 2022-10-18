@@ -35,15 +35,20 @@ const SQLRepl = ({ db }) => {
   };
   useEffect(() => {
     getPrimaryKeys();
+    // handleTest();
   }, [tblList]);
   const handleLoadDB = () => {
+    setIsLoading(true);
+
     setTblList(
       exec(
         "SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
       )
     );
     const initApiCall = { method: 'open_session' };
-    setTimeout(() => ws.send(JSON.stringify(initApiCall)), 500);
+    setTimeout(() => {
+      ws.send(JSON.stringify(initApiCall));
+    }, 500);
   };
 
   const getPrimaryKeys = () => {
@@ -64,20 +69,20 @@ const SQLRepl = ({ db }) => {
     if (e.target.name === 'request-message') setReqMsg(e.target.value);
   };
 
-  const handleConnect = () => {
-    setIsLoading(true);
+  const handleSendReqest = () => {
     // const apiCall = { method: 'open_session' };
-    ws.send(reqMsg);
+    if (reqMsg) ws.send(reqMsg);
   };
 
-  const handleForceUpdate = async () => {
+  const handleTest = async () => {
     try {
       const resultSQL = validateJson(testJson1, primaryKeyList);
       for (let item of resultSQL) await db.exec(item);
+      console.log(resultSQL);
     } catch (err) {
       console.log(err);
     }
-    setResults(exec(`SELECT * from ${curTable}`));
+    // setResults(exec(`SELECT * from ${curTable}`));
   };
   const handleDisconnect = () => {
     ws.close();
@@ -98,12 +103,14 @@ const SQLRepl = ({ db }) => {
       setIsLoading(false);
       return;
     }
+    // console.log(event.data);
     console.log(json);
     try {
       const resultSQL = validateJson(json, primaryKeyList);
+      console.log(resultSQL);
       if (db) {
         for (let item of resultSQL) await db.exec(item);
-        setResults(exec(`SELECT * from ${curTable}`));
+        curTable && setResults(exec(`SELECT * from ${curTable}`));
       }
     } catch (err) {
       console.log(err);
@@ -131,7 +138,7 @@ const SQLRepl = ({ db }) => {
             Load Schema
           </button>
           <button
-            onClick={handleConnect}
+            onClick={handleSendReqest}
             className='filled'
             disabled={connected !== 1}
           >
