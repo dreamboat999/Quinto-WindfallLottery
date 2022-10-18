@@ -16,7 +16,7 @@ var primaryKeyList = [];
 const SQLRepl = ({ db }) => {
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
-  const [reqMsg, setReqMsg] = useState('{ "method": "open_session" }');
+  const [reqMsg, setReqMsg] = useState('');
   const [tblList, setTblList] = useState([]);
   const [curTable, setCurTable] = useState();
   const [isLoading, setIsLoading] = useState(false);
