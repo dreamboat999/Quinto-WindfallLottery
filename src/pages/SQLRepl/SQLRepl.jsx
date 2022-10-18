@@ -101,7 +101,10 @@ const SQLRepl = ({ db }) => {
     console.log(json);
     try {
       const resultSQL = validateJson(json, primaryKeyList);
-      if (db) for (let item of resultSQL) await db.exec(item);
+      if (db) {
+        for (let item of resultSQL) await db.exec(item);
+        setResults(exec(`SELECT * from ${curTable}`));
+      }
     } catch (err) {
       console.log(err);
     }
