@@ -12,7 +12,19 @@ function sqlValueBuilder(data) {
   return [keyArray, valueArray];
 }
 
-export default function validateJson(json) {
+function getKeys(record, primaryKeyList, table_name) {
+  if (primaryKeyList.length == 0) return;
+  for (const primaryKey of primaryKeyList) {
+    if (primaryKey[table_name] != undefined) {
+      return {
+        value: record[primaryKey[table_name][0][0]],
+        key: primaryKey[table_name][0][0],
+      };
+    }
+  }
+}
+
+export default function validateJson(json, primaryKeyList) {
   if (!json.hasOwnProperty('result')) return 'No result key in the data';
   let resultSQL = [];
   let data = json.result;
@@ -23,6 +35,7 @@ export default function validateJson(json) {
         sqlStr += 'INSERT INTO';
         break;
       case 'UPDATE':
+        sqlStr += 'UPDATE';
         break;
       case 'MERGE':
         break;
@@ -37,25 +50,165 @@ export default function validateJson(json) {
     })[0];
 
     sqlStr += ` ${table_name} `;
-
-    if (Array.isArray(x[table_name])) {
-      let tempStr = '';
-      for (let y of x[table_name]) {
-        tempStr += sqlStr;
-        tempStr += `(${sqlValueBuilder(y)[0].join(',')}) VALUES `;
-        tempStr += `(${sqlValueBuilder(y)[1].join(',')});`;
+    if (x.mode === 'INSERT') {
+      if (Array.isArray(x[table_name])) {
+        let tempStr = '';
+        for (let y of x[table_name]) {
+          tempStr += sqlStr;
+          tempStr += `(${sqlValueBuilder(y)[0].join(',')}) VALUES `;
+          tempStr += `(${sqlValueBuilder(y)[1].join(',')});`;
+        }
+        sqlStr = tempStr;
+      } else {
+        sqlStr += `(${sqlValueBuilder(x[table_name])[0].join(',')}) VALUES `;
+        sqlStr += `(${sqlValueBuilder(x[table_name])[1].join(',')});`;
       }
-      sqlStr = tempStr;
-    } else {
-      sqlStr += `(${sqlValueBuilder(x[table_name])[0].join(',')}) VALUES `;
-      sqlStr += `(${sqlValueBuilder(x[table_name])[1].join(',')});`;
+    } else if (x.mode === 'UPDATE') {
+      sqlStr += 'SET ';
+      if (Array.isArray(x[table_name])) {
+        let tempStr = '';
+        for (let y of x[table_name]) {
+          let tempStr1 = sqlStr;
+
+          console.log(tempStr);
+          let keys = getKeys(y, primaryKeyList, table_name);
+          if (keys == undefined) return;
+          for (let i = 0; i < sqlValueBuilder(y)[0].length; i++) {
+            if (sqlValueBuilder(y)[0][i] == keys.key) continue;
+            tempStr1 += `${sqlValueBuilder(y)[0][i]} = ${
+              sqlValueBuilder(y)[1][i]
+            } `;
+          }
+          tempStr1 += 'WHERE ';
+          tempStr1 += `${keys.key} = '${keys.value}';\n`;
+          tempStr += tempStr1;
+        }
+        sqlStr = tempStr;
+      } else {
+        let keys = getKeys(x[table_name], primaryKeyList, table_name);
+        console.log(x[table_name]);
+
+        for (let i = 0; i < sqlValueBuilder(x[table_name])[0].length; i++) {
+          if (sqlValueBuilder(x[table_name])[0][i] == keys.key) continue;
+          sqlStr += `${sqlValueBuilder(x[table_name])[0][i]} = ${
+            sqlValueBuilder(x[table_name])[1][i]
+          }, `;
+        }
+        sqlStr = sqlStr.slice(0, -2);
+        sqlStr += ' WHERE ';
+        sqlStr += `${keys.key} = '${keys.value}';\n`;
+      }
     }
     resultSQL.push(sqlStr);
   }
-  console.log(resultSQL.toString());
+
+  console.log(resultSQL);
   return resultSQL;
 }
 
+// validateJson({
+//   result: [
+//     {
+//       mode: 'UPDATE',
+//       client_balances: [
+//         {
+//           exchange_rate: 1.002,
+//           currency_type: 'CHF',
+//         },
+//         {
+//           exchange_rate: 0.9835,
+//           currency_type: 'EUR',
+//         },
+//         {
+//           exchange_rate: 110.61,
+//           currency_type: 'BCH',
+//         },
+//         {
+//           exchange_rate: 1.0,
+//           currency_type: 'USD',
+//         },
+//         {
+//           exchange_rate: 0.7639,
+//           currency_type: 'CAD',
+//         },
+//         {
+//           exchange_rate: 6.225,
+//           currency_type: 'DOT',
+//         },
+//         {
+//           exchange_rate: 1.0,
+//           currency_type: 'USDT',
+//         },
+//         {
+//           exchange_rate: 0.05988,
+//           currency_type: 'DOGE',
+//         },
+//         {
+//           exchange_rate: 0.6305,
+//           currency_type: 'AUD',
+//         },
+//         {
+//           exchange_rate: 19560.38,
+//           currency_type: 'BTC',
+//         },
+//         {
+//           exchange_rate: 0.0006984,
+//           currency_type: 'KRW',
+//         },
+//         {
+//           exchange_rate: 0.006712,
+//           currency_type: 'JPY',
+//         },
+//         {
+//           exchange_rate: 1.143,
+//           currency_type: 'GBP',
+//         },
+//         {
+//           exchange_rate: 274.07,
+//           currency_type: 'BNB',
+//         },
+//         {
+//           exchange_rate: 0.4783,
+//           currency_type: 'XRP',
+//         },
+//         {
+//           exchange_rate: 1330.4,
+//           currency_type: 'ETH',
+//         },
+//         {
+//           exchange_rate: 52.82,
+//           currency_type: 'ZEC',
+//         },
+//         {
+//           exchange_rate: 1.0,
+//           currency_type: 'USDC',
+//         },
+//         {
+//           exchange_rate: 51.89,
+//           currency_type: 'LTC',
+//         },
+//         {
+//           exchange_rate: 0.9999,
+//           currency_type: 'BUSD',
+//         },
+//         {
+//           exchange_rate: 0.3726,
+//           currency_type: 'ADA',
+//         },
+//       ],
+//       _location_: 'accounting.currency.UpdateExchangeRates(137)',
+//     },
+//     {
+//       mode: 'UPDATE',
+//       client_balances: {
+//         withdrawal_fee: 0.00001,
+//         exchange_rate: 19560.38,
+//         currency_type: 'BTC',
+//       },
+//       _location_: 'accounting.currency.UpdateExchangeRates(101)',
+//     },
+//   ],
+// });
 // validateJson({
 //   result: [
 //     {

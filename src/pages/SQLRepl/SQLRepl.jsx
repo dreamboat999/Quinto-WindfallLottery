@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GridLoader } from 'react-spinners';
 import ResultsTable from 'components/ResultTable';
 import TableList from 'components/TableList';
 import ConnectionStatus from 'components/ConnectionStatus';
 import validateJson from 'utils/validateJson.js';
+import testJson1 from 'utils/test1.json';
 import styles from './sqlRepl.module.scss';
 /**
  * A simple SQL read-eval-print-loop
@@ -11,7 +12,7 @@ import styles from './sqlRepl.module.scss';
  */
 
 const ws = new WebSocket('wss://qa.quinto.games');
-
+var primaryKeyList = [];
 const SQLRepl = ({ db }) => {
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
@@ -19,25 +20,39 @@ const SQLRepl = ({ db }) => {
   const [curTable, setCurTable] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [connected, setConnected] = useState(3);
-
   const exec = (sql) => {
     let results;
     try {
-      results = db.exec(sql); // an array of objects is returned
+      results = db.exec(sql);
       setError(null);
     } catch (err) {
       setError(err);
       results = [];
     }
-    console.log(results);
     return results;
   };
+  useEffect(() => {
+    getPrimaryKeys();
+  }, [tblList]);
   const handleLoadDB = () => {
     setTblList(
       exec(
         "SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
       )
     );
+  };
+
+  const getPrimaryKeys = () => {
+    if (!tblList.length || !db) return;
+
+    for (let tbl of tblList[0].values) {
+      const res = db.exec(`SELECT DISTINCT ii.name AS 'indexed-columns'
+      FROM sqlite_schema AS m, pragma_index_list(m.name) AS il, pragma_index_info(il.name) AS ii
+      WHERE m.type='table' and m.name = '${tbl[0]}' order by 1;`);
+      const object = {};
+      Object.defineProperty(object, `${tbl[0]}`, { value: res[0].values });
+      primaryKeyList.push(object);
+    }
   };
 
   const handleChange = (e) => {
@@ -47,30 +62,32 @@ const SQLRepl = ({ db }) => {
 
   const handleConnect = () => {
     setIsLoading(true);
-    const apiCall = {
-      method: 'open_session',
-    };
+    const apiCall = { method: 'open_session' };
     ws.send(JSON.stringify(apiCall));
+  };
+
+  const handleForceUpdate = async () => {
+    try {
+      const resultSQL = validateJson(testJson1, primaryKeyList);
+      for (let item of resultSQL) await db.exec(item);
+    } catch (err) {
+      console.log(err);
+    }
+    setResults(exec(`SELECT * from ${curTable}`));
   };
   const handleDisconnect = () => {
     ws.close();
     setConnected(ws.readyState);
   };
   ws.onopen = (event) => {
-    console.log('WS OPENED');
     setConnected(ws.readyState);
   };
   ws.onmessage = async function (event) {
-    console.log('WS MESSAGE');
     setConnected(ws.readyState);
     const json = JSON.parse(event.data);
     try {
-      // console.log(json);
-      const resultSQL = validateJson(json);
-      console.log(resultSQL);
+      const resultSQL = validateJson(json, primaryKeyList);
       for (let item of resultSQL) await db.exec(item);
-      const binaryArray = db.export();
-      console.log(binaryArray);
     } catch (err) {
       console.log(err);
     }

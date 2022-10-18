@@ -13,8 +13,6 @@ export default function App() {
     try {
       const SQL = await initSqlJs({ locateFile: () => sqlWasm });
       fetch('./LotteryTest.db').then(async (res) => {
-        console.log(res);
-
         const db = new SQL.Database(new Uint8Array(await res.arrayBuffer()));
         setDb(db);
       });
