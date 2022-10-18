@@ -4,8 +4,6 @@ import style from './resultTable.module.scss';
  * @param {import("sql.js").QueryExecResult} props
  */
 const ResultsTable = ({ columns, values }) => {
-  console.log(columns);
-  console.log(values);
   return (
     <div
       style={{ overflow: 'auto', height: '560px' }}

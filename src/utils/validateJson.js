@@ -1,3 +1,12 @@
+export function isJson(str) {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
 function sqlValueBuilder(data) {
   let keyArray = [],
     valueArray = [];
@@ -24,7 +33,7 @@ function getKeys(record, primaryKeyList, table_name) {
   }
 }
 
-export default function validateJson(json, primaryKeyList) {
+export function validateJson(json, primaryKeyList) {
   if (!json.hasOwnProperty('result')) return 'No result key in the data';
   let resultSQL = [];
   let data = json.result;
@@ -102,7 +111,7 @@ export default function validateJson(json, primaryKeyList) {
     resultSQL.push(sqlStr);
   }
 
-  console.log(resultSQL);
+  // console.log(resultSQL);
   return resultSQL;
 }
 

@@ -3,9 +3,10 @@ import { GridLoader } from 'react-spinners';
 import ResultsTable from 'components/ResultTable';
 import TableList from 'components/TableList';
 import ConnectionStatus from 'components/ConnectionStatus';
-import validateJson from 'utils/validateJson.js';
+import { validateJson, isJson } from 'utils/validateJson.js';
 import testJson1 from 'utils/test1.json';
 import styles from './sqlRepl.module.scss';
+import { createNoSubstitutionTemplateLiteral } from 'typescript';
 /**
  * A simple SQL read-eval-print-loop
  * @param {{db: import("sql.js").Database}} props
@@ -16,10 +17,12 @@ var primaryKeyList = [];
 const SQLRepl = ({ db }) => {
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
+  const [reqMsg, setReqMsg] = useState('{ "method": "open_session" }');
   const [tblList, setTblList] = useState([]);
   const [curTable, setCurTable] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [connected, setConnected] = useState(3);
+
   const exec = (sql) => {
     let results;
     try {
@@ -56,14 +59,14 @@ const SQLRepl = ({ db }) => {
   };
 
   const handleChange = (e) => {
-    setResults(exec(e.target.value));
-    console.log(results);
+    if (e.target.name === 'sql-query') setResults(exec(e.target.value));
+    if (e.target.name === 'request-message') setReqMsg(e.target.value);
   };
 
   const handleConnect = () => {
     setIsLoading(true);
-    const apiCall = { method: 'open_session' };
-    ws.send(JSON.stringify(apiCall));
+    // const apiCall = { method: 'open_session' };
+    ws.send(reqMsg);
   };
 
   const handleForceUpdate = async () => {
@@ -81,10 +84,22 @@ const SQLRepl = ({ db }) => {
   };
   ws.onopen = (event) => {
     setConnected(ws.readyState);
+    const initApiCall = { method: 'open_session' };
+    setTimeout(() => ws.send(JSON.stringify(initApiCall)), 500);
   };
   ws.onmessage = async function (event) {
     setConnected(ws.readyState);
+    if (!isJson(event.data)) {
+      setError(event.data);
+      setIsLoading(false);
+      return;
+    }
     const json = JSON.parse(event.data);
+    if (!json.hasOwnProperty('result')) {
+      setIsLoading(false);
+      return;
+    }
+    console.log(json);
     try {
       const resultSQL = validateJson(json, primaryKeyList);
       for (let item of resultSQL) await db.exec(item);
@@ -106,8 +121,10 @@ const SQLRepl = ({ db }) => {
         <header>
           <textarea
             onChange={handleChange}
+            name='sql-query'
             placeholder='Enter some SQL query. Ex: “select sqlite_version()”'
           ></textarea>
+
           <button onClick={handleLoadDB} className='filled'>
             Load Schema
           </button>
@@ -125,7 +142,14 @@ const SQLRepl = ({ db }) => {
           >
             Disconnect
           </button>
+
           <ConnectionStatus readyState={connected} />
+          <textarea
+            onChange={handleChange}
+            name='request-message'
+            placeholder='Enter messages to send request to the server'
+            value={reqMsg}
+          ></textarea>
         </header>
         {isLoading && (
           <div className='spinner'>
