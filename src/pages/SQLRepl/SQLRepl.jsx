@@ -40,11 +40,7 @@ const SQLRepl = ({ db }) => {
   const handleLoadDB = () => {
     setIsLoading(true);
 
-    setTblList(
-      exec(
-        "SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
-      )
-    );
+    setTblList(exec("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';"));
     const initApiCall = { method: 'open_session' };
     setTimeout(() => {
       ws.send(JSON.stringify(initApiCall));
@@ -109,7 +105,13 @@ const SQLRepl = ({ db }) => {
       const resultSQL = validateJson(json, primaryKeyList);
       console.log(resultSQL);
       if (db) {
-        for (let item of resultSQL) await db.exec(item);
+        for (let item of resultSQL) {
+          try {
+            await db.exec(item);
+          } catch (error) {
+            console.log(error);
+          }
+        }
         curTable && setResults(exec(`SELECT * from ${curTable}`));
       }
     } catch (err) {
@@ -137,18 +139,10 @@ const SQLRepl = ({ db }) => {
           <button onClick={handleLoadDB} className='filled'>
             Load Schema
           </button>
-          <button
-            onClick={handleSendReqest}
-            className='filled'
-            disabled={connected !== 1}
-          >
+          <button onClick={handleSendReqest} className='filled' disabled={connected !== 1}>
             Send request
           </button>
-          <button
-            onClick={handleDisconnect}
-            className='filled'
-            disabled={connected !== 1}
-          >
+          <button onClick={handleDisconnect} className='filled' disabled={connected !== 1}>
             Disconnect
           </button>
 
@@ -168,12 +162,7 @@ const SQLRepl = ({ db }) => {
         <pre className='error'>{(error || '').toString()}</pre>
         <main>
           {tblList.length ? (
-            <TableList
-              tblList={tblList}
-              setCurTable={setCurTable}
-              exec={exec}
-              setResults={setResults}
-            />
+            <TableList tblList={tblList} setCurTable={setCurTable} exec={exec} setResults={setResults} />
           ) : (
             <></>
           )}

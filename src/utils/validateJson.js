@@ -12,8 +12,11 @@ function sqlValueBuilder(data) {
     valueArray = [];
   for (const key in data) {
     if (Object.hasOwnProperty.call(data, key)) {
-      const element = data[key];
+      let element = data[key];
       keyArray.push(key);
+      if (typeof element === 'string' && element.includes("'")) {
+        element = element.replace("'", "''");
+      }
       valueArray.push(`'${element}'`);
     }
   }
@@ -102,11 +105,10 @@ export function validateJson(json, primaryKeyList) {
           if (keys == undefined) return;
           for (let i = 0; i < sqlValueBuilder(y)[0].length; i++) {
             if (sqlValueBuilder(y)[0][i] == keys.key) continue;
-            tempStr1 += `${sqlValueBuilder(y)[0][i]} = ${
-              sqlValueBuilder(y)[1][i]
-            } `;
+            tempStr1 += `${sqlValueBuilder(y)[0][i]} = ${sqlValueBuilder(y)[1][i]}, `;
           }
-          tempStr1 += 'WHERE ';
+          tempStr1 = tempStr1.slice(0, -2);
+          tempStr1 += ' WHERE ';
           tempStr1 += `${keys.key} = '${keys.value}';\n`;
           tempStr += tempStr1;
         }
@@ -116,9 +118,7 @@ export function validateJson(json, primaryKeyList) {
 
         for (let i = 0; i < sqlValueBuilder(x[table_name])[0].length; i++) {
           if (sqlValueBuilder(x[table_name])[0][i] == keys.key) continue;
-          sqlStr += `${sqlValueBuilder(x[table_name])[0][i]} = ${
-            sqlValueBuilder(x[table_name])[1][i]
-          }, `;
+          sqlStr += `${sqlValueBuilder(x[table_name])[0][i]} = ${sqlValueBuilder(x[table_name])[1][i]}, `;
         }
         sqlStr = sqlStr.slice(0, -2);
         sqlStr += ' WHERE ';
@@ -141,9 +141,7 @@ export function validateJson(json, primaryKeyList) {
         sqlStr = tempStr;
       } else {
         sqlStr += `(${sqlValueBuilder(x[table_name])[0].join(',')}) VALUES `;
-        sqlStr += `(${sqlValueBuilder(x[table_name])[1].join(
-          ','
-        )}) ON CONFLICT(`;
+        sqlStr += `(${sqlValueBuilder(x[table_name])[1].join(',')}) ON CONFLICT(`;
 
         let keys = getAllKeys(y, primaryKeyList, table_name);
         sqlStr += keys[0].join(',') + ') DO UPDATE SET ';
@@ -159,18 +157,14 @@ export function validateJson(json, primaryKeyList) {
         for (let y of x[table_name]) {
           tempStr += sqlStr;
           for (let i = 0; i < sqlValueBuilder(y)[0].length; i++) {
-            tempStr += `${sqlValueBuilder(y)[0][i]} = ${
-              sqlValueBuilder(y)[1][i]
-            } AND `;
+            tempStr += `${sqlValueBuilder(y)[0][i]} = ${sqlValueBuilder(y)[1][i]} AND `;
           }
           tempStr = tempStr.slice(0, -5) + ';\n';
         }
         sqlStr = tempStr;
       } else {
         for (let i = 0; i < sqlValueBuilder(x[table_name])[0].length; i++) {
-          sqlStr += `${sqlValueBuilder(x[table_name])[0][i]} = ${
-            sqlValueBuilder(x[table_name])[1][i]
-          } AND `;
+          sqlStr += `${sqlValueBuilder(x[table_name])[0][i]} = ${sqlValueBuilder(x[table_name])[1][i]} AND `;
         }
         sqlStr = sqlStr.slice(0, -5) + ';\n';
       }
