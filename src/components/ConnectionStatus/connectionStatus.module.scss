@@ -1,6 +1,6 @@
 .connectionStatus :global {
   position: absolute;
-  top: 16px;
+  top: 25px;
   right: 16px;
   width: fit-content;
   display: flex;
@@ -19,6 +19,6 @@
   }
 
   .green {
-    background-color: rgb(24, 192, 24);
+    background-color: #1cdd66;
   }
 }

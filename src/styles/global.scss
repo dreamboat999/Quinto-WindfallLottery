@@ -2,7 +2,7 @@
 @import './mixin/button';
 
 body {
-  background-color: #1f1f1f;
+  background-color: #00003e;
   font-family: 'Urbanist';
   color: white;
 }
@@ -12,7 +12,7 @@ body {
   margin: 0;
   box-sizing: border-box;
   font-family: 'Urbanist', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 :root {
@@ -26,6 +26,8 @@ h1 {
 }
 
 .container {
+  min-height: 100vh;
+  background-size: 100%;
   margin: 0px 12px;
 }
 

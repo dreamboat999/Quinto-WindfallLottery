@@ -4,7 +4,7 @@ import ResultsTable from 'components/ResultTable';
 import TableList from 'components/TableList';
 import ConnectionStatus from 'components/ConnectionStatus';
 import { validateJson, isJson } from 'utils/validateJson.js';
-import testJson1 from 'utils/test.json';
+import testJson from 'utils/test.json';
 import styles from './sqlRepl.module.scss';
 /**
  * A simple SQL read-eval-print-loop
@@ -13,6 +13,19 @@ import styles from './sqlRepl.module.scss';
 
 const ws = new WebSocket('wss://qa.quinto.games');
 var primaryKeyList = [];
+const Logo = () => {
+  return <img src='assets/imgs/logo.png' alt='logo' style={{ width: '150px' }} />;
+};
+const GoldCup = () => {
+  return (
+    <img src='assets/imgs/goldcup.png' style={{ position: 'absolute', left: '0px', bottom: '0px' }} alt='goldcup' />
+  );
+};
+const Rocket = () => {
+  return (
+    <img src='assets/imgs/rocket.png' style={{ position: 'absolute', right: '0px', bottom: '0px' }} alt='rocket' />
+  );
+};
 const SQLRepl = ({ db }) => {
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
@@ -72,7 +85,7 @@ const SQLRepl = ({ db }) => {
 
   const handleTest = async () => {
     try {
-      const resultSQL = validateJson(testJson1, primaryKeyList);
+      const resultSQL = validateJson(testJson, primaryKeyList);
       for (let item of resultSQL) await db.exec(item);
       console.log(resultSQL);
     } catch (err) {
@@ -115,6 +128,7 @@ const SQLRepl = ({ db }) => {
         curTable && setResults(exec(`SELECT * from ${curTable}`));
       }
     } catch (err) {
+      console.log(json);
       console.log(err);
     }
     setIsLoading(false);
@@ -128,9 +142,9 @@ const SQLRepl = ({ db }) => {
   return (
     <div className={styles.sqlRepl}>
       <div className='container'>
-        <h1>Quinto Games</h1>
-        <ConnectionStatus readyState={connected} />
         <header>
+          <Logo />
+          <ConnectionStatus readyState={connected} />
           <div className='top-menu'>
             <textarea
               onChange={handleChange}
@@ -173,6 +187,8 @@ const SQLRepl = ({ db }) => {
           ))}
         </main>
       </div>
+      <GoldCup />
+      <Rocket />
     </div>
   );
 };
