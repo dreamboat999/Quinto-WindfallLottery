@@ -5,11 +5,8 @@ import style from './resultTable.module.scss';
  */
 const ResultsTable = ({ columns, values }) => {
   return (
-    <div
-      style={{ overflow: 'auto', height: '560px' }}
-      className='scroll scroll--simple'
-    >
-      <table className={style.resultTable}>
+    <div className={`${style.resultTable} scroll scroll--simple`}>
+      <table>
         <thead>
           <tr>
             {columns.map((columnName, i) => (

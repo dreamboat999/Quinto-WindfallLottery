@@ -1,31 +1,35 @@
 .resultTable :global {
-  width: 100%;
-  height: fit-content;
-  border-collapse: collapse;
-  border-radius: 3px;
-  thead {
-    background-color: var(--primary);
-    font-weight: bold;
-    tr th {
-      padding: 8px;
-    }
-  }
-  td,
-  th {
-    text-align: center;
-    border: 1px solid #aaa;
-  }
-  tbody {
-    tr {
-      &:nth-child(odd) {
-        background-color: #0001;
-      }
-      &:nth-child(even) {
-        background-color: #0004;
+  overflow: auto;
+  height: 530px;
+  table {
+    width: 100%;
+    height: fit-content;
+    border-collapse: collapse;
+    border-radius: 3px;
+    thead {
+      background-color: var(--primary);
+      font-weight: bold;
+      tr th {
+        padding: 8px;
       }
     }
-    td {
-      padding: 8px;
+    td,
+    th {
+      text-align: center;
+      border: 1px solid #aaa;
+    }
+    tbody {
+      tr {
+        &:nth-child(odd) {
+          background-color: #0001;
+        }
+        &:nth-child(even) {
+          background-color: #0004;
+        }
+      }
+      td {
+        padding: 8px;
+      }
     }
   }
 }

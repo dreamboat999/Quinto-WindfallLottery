@@ -4,7 +4,7 @@ const ConnectionStatus = ({ readyState }) => {
   const state = ['Connecting', 'Connected', 'Closing', 'Closed'];
   return (
     <div className={style.connectionStatus}>
-      <span className={readyState === 1 ? 'dot green' : 'dot red'} />
+      <span className={`dot ${readyState === 1 ? 'green' : 'red'}`} />
       <span>{state[readyState]}</span>
     </div>
   );

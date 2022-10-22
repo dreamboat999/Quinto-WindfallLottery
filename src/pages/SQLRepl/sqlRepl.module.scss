@@ -1,16 +1,40 @@
 .sqlRepl :global {
   header {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
 
+    .top-menu {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: space-between;
+
+      @media (max-width: 960px) {
+        flex-direction: column;
+      }
+
+      textarea {
+        width: 100%;
+        flex-grow: 1;
+      }
+      .button-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        button {
+          width: 160px;
+        }
+      }
+    }
     textarea {
       color: white;
       padding: 8px 8px 0px;
       outline: none;
       border-radius: 3px;
       border: 1px solid gray;
-      max-width: 640px;
       width: 100%;
       line-height: 16px;
       transition: all 0.15s ease-in-out;
@@ -19,9 +43,6 @@
       &:focus {
         border-color: var(--primary);
       }
-    }
-    button {
-      margin-left: 24px;
     }
   }
 

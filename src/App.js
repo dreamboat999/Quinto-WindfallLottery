@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import initSqlJs from 'sql.js';
 import SQLRepl from 'pages/SQLRepl/';
-import { GridLoader } from 'react-spinners';
+import { HashLoader } from 'react-spinners';
 import sqlWasm from '!!file-loader?name=sql-wasm-[contenthash].wasm!sql.js/dist/sql-wasm.wasm';
 import 'styles/global.scss';
 
@@ -27,7 +27,7 @@ export default function App() {
       {error && '<pre>{error.toString()}</pre>'}
       {!db && (
         <div className='spinner'>
-          <GridLoader color='#03b3ff' />
+          <HashLoader color='#03b3ff' />
         </div>
       )}
       <SQLRepl db={db} />

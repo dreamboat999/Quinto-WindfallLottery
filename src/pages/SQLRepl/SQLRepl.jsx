@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { GridLoader } from 'react-spinners';
+import { HashLoader } from 'react-spinners';
 import ResultsTable from 'components/ResultTable';
 import TableList from 'components/TableList';
 import ConnectionStatus from 'components/ConnectionStatus';
 import { validateJson, isJson } from 'utils/validateJson.js';
-import testJson1 from 'utils/test1.json';
+import testJson1 from 'utils/test.json';
 import styles from './sqlRepl.module.scss';
 /**
  * A simple SQL read-eval-print-loop
@@ -129,34 +129,36 @@ const SQLRepl = ({ db }) => {
     <div className={styles.sqlRepl}>
       <div className='container'>
         <h1>Quinto Games</h1>
+        <ConnectionStatus readyState={connected} />
         <header>
-          <textarea
-            onChange={handleChange}
-            name='sql-query'
-            placeholder='Enter some SQL query. Ex: “select sqlite_version()”'
-          ></textarea>
-
-          <button onClick={handleLoadDB} className='filled'>
-            Load Schema
-          </button>
-          <button onClick={handleSendReqest} className='filled' disabled={connected !== 1}>
-            Send request
-          </button>
-          <button onClick={handleDisconnect} className='filled' disabled={connected !== 1}>
-            Disconnect
-          </button>
-
-          <ConnectionStatus readyState={connected} />
+          <div className='top-menu'>
+            <textarea
+              onChange={handleChange}
+              name='sql-query'
+              placeholder='Enter some SQL query. Ex: “select sqlite_version()”'
+            />
+            <div className='button-group'>
+              <button onClick={handleLoadDB} className='filled'>
+                Load Schema
+              </button>
+              <button onClick={handleSendReqest} className='filled' disabled={connected !== 1}>
+                Send request
+              </button>
+              <button onClick={handleDisconnect} className='filled' disabled={connected !== 1}>
+                Disconnect
+              </button>
+            </div>
+          </div>
           <textarea
             onChange={handleChange}
             name='request-message'
             placeholder='Enter messages to send request to the server'
             value={reqMsg}
-          ></textarea>
+          />
         </header>
         {isLoading && (
           <div className='spinner'>
-            <GridLoader color='#03b3ff' />
+            <HashLoader color='#03b3ff' />
           </div>
         )}
         <pre className='error'>{(error || '').toString()}</pre>
