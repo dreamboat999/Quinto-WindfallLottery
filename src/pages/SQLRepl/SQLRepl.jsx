@@ -18,12 +18,20 @@ const Logo = () => {
 };
 const GoldCup = () => {
   return (
-    <img src='assets/imgs/goldcup.png' style={{ position: 'absolute', left: '0px', bottom: '0px' }} alt='goldcup' />
+    <img
+      src='assets/imgs/goldcup.png'
+      style={{ position: 'absolute', width: '20vh', left: '0px', bottom: '0px', zIndex: '-1' }}
+      alt='goldcup'
+    />
   );
 };
 const Rocket = () => {
   return (
-    <img src='assets/imgs/rocket.png' style={{ position: 'absolute', right: '0px', bottom: '0px' }} alt='rocket' />
+    <img
+      src='assets/imgs/rocket.png'
+      style={{ position: 'absolute', width: '50vh', right: '0px', bottom: '0px' }}
+      alt='rocket'
+    />
   );
 };
 const SQLRepl = ({ db }) => {
@@ -34,6 +42,7 @@ const SQLRepl = ({ db }) => {
   const [curTable, setCurTable] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [connected, setConnected] = useState(3);
+  const [isDBLoaded, setIsDBLoaded] = useState(false);
 
   const exec = (sql) => {
     let results;
@@ -58,6 +67,7 @@ const SQLRepl = ({ db }) => {
     setTimeout(() => {
       ws.send(JSON.stringify(initApiCall));
     }, 500);
+    setIsDBLoaded(true);
   };
 
   const getPrimaryKeys = () => {
@@ -152,7 +162,7 @@ const SQLRepl = ({ db }) => {
               placeholder='Enter some SQL query. Ex: “select sqlite_version()”'
             />
             <div className='button-group'>
-              <button onClick={handleLoadDB} className='filled'>
+              <button onClick={handleLoadDB} className='filled' disabled={isDBLoaded === true}>
                 Load Schema
               </button>
               <button onClick={handleSendReqest} className='filled' disabled={connected !== 1}>
@@ -170,6 +180,7 @@ const SQLRepl = ({ db }) => {
             value={reqMsg}
           />
         </header>
+
         {isLoading && (
           <div className='spinner'>
             <HashLoader color='#03b3ff' />
@@ -187,7 +198,6 @@ const SQLRepl = ({ db }) => {
           ))}
         </main>
       </div>
-      <GoldCup />
       <Rocket />
     </div>
   );
