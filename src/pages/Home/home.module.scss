@@ -1,4 +1,4 @@
-.sqlRepl :global {
+.home :global {
   header {
     display: flex;
     flex-direction: column;
@@ -17,7 +17,7 @@
         flex-direction: column;
       }
 
-      textarea {
+      input {
         width: 100%;
         flex-grow: 1;
       }
@@ -30,14 +30,14 @@
         }
       }
     }
-    textarea {
+    input {
       color: white;
-      padding: 8px 8px 0px;
+      padding: 8px;
       outline: none;
       border-radius: 3px;
       border: 1px solid gray;
       width: 100%;
-      line-height: 16px;
+      line-height: 25px;
       transition: all 0.15s ease-in-out;
       background: transparent;
 

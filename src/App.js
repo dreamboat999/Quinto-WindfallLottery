@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import initSqlJs from 'sql.js';
-import SQLRepl from 'pages/SQLRepl/';
+import Home from 'pages/Home';
 import { HashLoader } from 'react-spinners';
 import sqlWasm from '!!file-loader?name=sql-wasm-[contenthash].wasm!sql.js/dist/sql-wasm.wasm';
 import 'styles/global.scss';
@@ -30,7 +30,7 @@ export default function App() {
           <HashLoader color='#03b3ff' />
         </div>
       )}
-      <SQLRepl db={db} />
+      <Home db={db} />
     </div>
   );
 }

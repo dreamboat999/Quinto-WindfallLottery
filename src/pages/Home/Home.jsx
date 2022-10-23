@@ -5,12 +5,7 @@ import TableList from 'components/TableList';
 import ConnectionStatus from 'components/ConnectionStatus';
 import { validateJson, isJson } from 'utils/validateJson.js';
 import testJson from 'utils/test.json';
-import styles from './sqlRepl.module.scss';
-/**
- * A simple SQL read-eval-print-loop
- * @param {{db: import("sql.js").Database}} props
- */
-
+import styles from './home.module.scss';
 const ws = new WebSocket('wss://qa.quinto.games');
 var primaryKeyList = [];
 const Logo = () => {
@@ -34,7 +29,7 @@ const Rocket = () => {
     />
   );
 };
-const SQLRepl = ({ db }) => {
+const Home = ({ db }) => {
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
   const [reqMsg, setReqMsg] = useState('');
@@ -55,13 +50,13 @@ const SQLRepl = ({ db }) => {
     }
     return results;
   };
+
   useEffect(() => {
     getPrimaryKeys();
-    // handleTest();
   }, [tblList]);
+
   const handleLoadDB = () => {
     setIsLoading(true);
-
     setTblList(exec("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';"));
     const initApiCall = { method: 'open_session' };
     setTimeout(() => {
@@ -72,7 +67,6 @@ const SQLRepl = ({ db }) => {
 
   const getPrimaryKeys = () => {
     if (!tblList.length || !db) return;
-
     for (let tbl of tblList[0].values) {
       const res = db.exec(`SELECT DISTINCT ii.name AS 'indexed-columns'
       FROM sqlite_schema AS m, pragma_index_list(m.name) AS il, pragma_index_info(il.name) AS ii
@@ -89,24 +83,14 @@ const SQLRepl = ({ db }) => {
   };
 
   const handleSendReqest = () => {
-    // const apiCall = { method: 'open_session' };
     if (reqMsg) ws.send(reqMsg);
   };
 
-  const handleTest = async () => {
-    try {
-      const resultSQL = validateJson(testJson, primaryKeyList);
-      for (let item of resultSQL) await db.exec(item);
-      console.log(resultSQL);
-    } catch (err) {
-      console.log(err);
-    }
-    // setResults(exec(`SELECT * from ${curTable}`));
-  };
   const handleDisconnect = () => {
     ws.close();
     setConnected(ws.readyState);
   };
+
   ws.onopen = (event) => {
     setConnected(ws.readyState);
   };
@@ -122,7 +106,6 @@ const SQLRepl = ({ db }) => {
       setIsLoading(false);
       return;
     }
-    // console.log(event.data);
     console.log(json);
     try {
       const resultSQL = validateJson(json, primaryKeyList);
@@ -151,13 +134,13 @@ const SQLRepl = ({ db }) => {
     setConnected(ws.readyState);
   };
   return (
-    <div className={styles.sqlRepl}>
+    <div className={styles.home}>
       <div className='container'>
         <header>
           <Logo />
           <ConnectionStatus readyState={connected} />
           <div className='top-menu'>
-            <textarea
+            <input
               onChange={handleChange}
               name='sql-query'
               placeholder='Enter some SQL query. Ex: “select sqlite_version()”'
@@ -174,7 +157,7 @@ const SQLRepl = ({ db }) => {
               </button>
             </div>
           </div>
-          <textarea
+          <input
             onChange={handleChange}
             name='request-message'
             placeholder='Enter messages to send request to the server'
@@ -204,4 +187,4 @@ const SQLRepl = ({ db }) => {
   );
 };
 
-export default SQLRepl;
+export default Home;

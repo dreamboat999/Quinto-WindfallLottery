@@ -3,8 +3,8 @@ import style from './tableList.module.scss';
 
 const TableList = ({ tblList, setCurTable, exec, setResults }) => {
   const [activeItem, setActiveItem] = useState('');
-
   let tableList = [];
+
   if (tblList.length) if ('values' in tblList[0]) tableList = tblList[0].values;
 
   const handleClick = (table) => {
@@ -19,8 +19,7 @@ const TableList = ({ tblList, setCurTable, exec, setResults }) => {
           key={i}
           value={table}
           onClick={() => handleClick(table)}
-          className={`${activeItem === table ? 'active' : ''}`}
-        >
+          className={`${activeItem === table ? 'active' : ''}`}>
           {table}
         </li>
       ))}
