@@ -69,6 +69,7 @@ export function validateJson(json, primaryKeyList) {
         sqlStr += 'INSERT INTO';
         break;
       case 'DELETE':
+        sqlStr += 'DELETE FROM';
         break;
       case 'REMOVE':
         sqlStr += 'DELETE FROM';
