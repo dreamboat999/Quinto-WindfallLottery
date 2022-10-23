@@ -101,28 +101,39 @@ export function validateJson(json, primaryKeyList) {
           let tempStr1 = sqlStr;
 
           console.log(tempStr);
-          let keys = getKeys(y, primaryKeyList, table_name);
+          let keys = getAllKeys(y, primaryKeyList, table_name);
           if (keys == undefined) return;
           for (let i = 0; i < sqlValueBuilder(y)[0].length; i++) {
-            if (sqlValueBuilder(y)[0][i] == keys.key) continue;
+            let findData = keys[0].find((item) => {
+              return item.key == sqlValueBuilder(y)[0][i];
+            });
+            if (findData != undefined) continue;
             tempStr1 += `${sqlValueBuilder(y)[0][i]} = ${sqlValueBuilder(y)[1][i]}, `;
           }
           tempStr1 = tempStr1.slice(0, -2);
           tempStr1 += ' WHERE ';
-          tempStr1 += `${keys.key} = '${keys.value}';\n`;
+          for (let i = 0; i < keys[0].length; i++) {
+            tempStr1 += `${keys[0][i]} = '${keys[1][i]}' AND `;
+          }
+          tempStr1 = tempStr1.slice(0, -5) + ';\n';
           tempStr += tempStr1;
         }
         sqlStr = tempStr;
       } else {
-        let keys = getKeys(x[table_name], primaryKeyList, table_name);
-
+        let keys = getAllKeys(x[table_name], primaryKeyList, table_name);
         for (let i = 0; i < sqlValueBuilder(x[table_name])[0].length; i++) {
-          if (sqlValueBuilder(x[table_name])[0][i] == keys.key) continue;
+          let findData = keys[0].find((item) => {
+            return item.key == sqlValueBuilder(x[table_name])[0][i];
+          });
+          if (findData != undefined) continue;
           sqlStr += `${sqlValueBuilder(x[table_name])[0][i]} = ${sqlValueBuilder(x[table_name])[1][i]}, `;
         }
         sqlStr = sqlStr.slice(0, -2);
         sqlStr += ' WHERE ';
-        sqlStr += `${keys.key} = '${keys.value}';\n`;
+        for (let i = 0; i < keys[0].length; i++) {
+          sqlStr += `${keys[0][i]} = '${keys[1][i]}' AND `;
+        }
+        sqlStr = sqlStr.slice(0, -5) + ';\n';
       }
     } else if (x.mode === 'MERGE') {
       if (Array.isArray(x[table_name])) {

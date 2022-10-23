@@ -29,7 +29,7 @@ const Rocket = () => {
   return (
     <img
       src='assets/imgs/rocket.png'
-      style={{ position: 'absolute', width: '50vh', right: '0px', bottom: '0px' }}
+      style={{ position: 'absolute', width: '50vh', right: '0px', bottom: '0px', zIndex: '-1' }}
       alt='rocket'
     />
   );
@@ -132,6 +132,7 @@ const SQLRepl = ({ db }) => {
           try {
             await db.exec(item);
           } catch (error) {
+            console.log(item);
             console.log(error);
           }
         }
