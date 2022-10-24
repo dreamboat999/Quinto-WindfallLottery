@@ -24,25 +24,12 @@ function sqlValueBuilder(data) {
   return [keyArray, valueArray];
 }
 
-function getKeys(record, primaryKeyList, table_name) {
-  if (primaryKeyList.length == 0) return;
-  for (const primaryKey of primaryKeyList) {
-    if (primaryKey[table_name] != undefined) {
-      return {
-        value: record[primaryKey[table_name][0][0]],
-        key: primaryKey[table_name][0][0],
-      };
-    }
-  }
-}
-
 function getAllKeys(record, primaryKeyList, table_name) {
-  let allKeys = [];
   let keyArray = [],
     valueArray = [];
-  if (primaryKeyList.length == 0) return;
+  if (primaryKeyList.length === 0) return;
   for (const primaryKey of primaryKeyList) {
-    if (primaryKey[table_name] != undefined) {
+    if (primaryKey[table_name] !== undefined) {
       for (const key of primaryKey[table_name]) {
         keyArray.push(key[0]);
         valueArray.push(record[key[0]]);
@@ -74,6 +61,8 @@ export function validateJson(json, primaryKeyList) {
       case 'REMOVE':
         sqlStr += 'DELETE FROM';
         break;
+      default:
+        break;
     }
     let table_name = Object.keys(x).filter((item) => {
       if (item !== '_location_' && item !== 'mode') return true;
@@ -103,12 +92,12 @@ export function validateJson(json, primaryKeyList) {
 
           console.log(tempStr);
           let keys = getAllKeys(y, primaryKeyList, table_name);
-          if (keys == undefined) return;
+          if (keys === undefined) return;
           for (let i = 0; i < sqlValueBuilder(y)[0].length; i++) {
             let findData = keys[0].find((item) => {
-              return item.key == sqlValueBuilder(y)[0][i];
+              return item.key === sqlValueBuilder(y)[0][i];
             });
-            if (findData != undefined) continue;
+            if (findData !== undefined) continue;
             tempStr1 += `${sqlValueBuilder(y)[0][i]} = ${sqlValueBuilder(y)[1][i]}, `;
           }
           tempStr1 = tempStr1.slice(0, -2);
@@ -124,9 +113,9 @@ export function validateJson(json, primaryKeyList) {
         let keys = getAllKeys(x[table_name], primaryKeyList, table_name);
         for (let i = 0; i < sqlValueBuilder(x[table_name])[0].length; i++) {
           let findData = keys[0].find((item) => {
-            return item.key == sqlValueBuilder(x[table_name])[0][i];
+            return item.key === sqlValueBuilder(x[table_name])[0][i];
           });
-          if (findData != undefined) continue;
+          if (findData !== undefined) continue;
           sqlStr += `${sqlValueBuilder(x[table_name])[0][i]} = ${sqlValueBuilder(x[table_name])[1][i]}, `;
         }
         sqlStr = sqlStr.slice(0, -2);
@@ -155,7 +144,7 @@ export function validateJson(json, primaryKeyList) {
         sqlStr += `(${sqlValueBuilder(x[table_name])[0].join(',')}) VALUES `;
         sqlStr += `(${sqlValueBuilder(x[table_name])[1].join(',')}) ON CONFLICT(`;
 
-        let keys = getAllKeys(y, primaryKeyList, table_name);
+        let keys = getAllKeys(sqlValueBuilder(x[table_name]), primaryKeyList, table_name);
         sqlStr += keys[0].join(',') + ') DO UPDATE SET ';
         for (let key of keys[0]) {
           sqlStr += `${key}=EXCLUDED.${key},`;

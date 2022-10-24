@@ -1,9 +1,8 @@
 .tableList :global {
   display: grid;
-  min-width: 250px;
+  min-width: 200px;
   height: 100%;
-  background: linear-gradient(180deg, #1d0d80 0%, rgba(0, 0, 62, 0) 100%);
-
+  background-color: #20202088;
   border: 1px solid;
   border-radius: 3px;
   list-style-type: none;

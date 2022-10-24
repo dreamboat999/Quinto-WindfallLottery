@@ -1,33 +1,41 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HashLoader } from 'react-spinners';
 import ResultsTable from 'components/ResultTable';
 import TableList from 'components/TableList';
 import ConnectionStatus from 'components/ConnectionStatus';
 import { validateJson, isJson } from 'utils/validateJson.js';
-import testJson from 'utils/test.json';
 import styles from './home.module.scss';
 const ws = new WebSocket('wss://qa.quinto.games');
 var primaryKeyList = [];
+
 const Logo = () => {
-  return <img src='assets/imgs/logo.png' alt='logo' style={{ width: '150px' }} />;
+  return <img src='assets/imgs/logo.png' style={{ width: '170px' }} alt='logo' />;
 };
+
 const GoldCup = () => {
   return (
     <img
-      src='assets/imgs/goldcup.png'
-      style={{ position: 'absolute', width: '20vh', left: '0px', bottom: '0px', zIndex: '-1' }}
+      src='assets/imgs/gold-cup.png'
+      style={{ position: 'absolute', width: '20rem', left: '0px', bottom: '0px', zIndex: '-1' }}
       alt='goldcup'
     />
   );
 };
+
 const Rocket = () => {
   return (
     <img
       src='assets/imgs/rocket.png'
-      style={{ position: 'absolute', width: '50vh', right: '0px', bottom: '0px', zIndex: '-1' }}
+      style={{ position: 'absolute', width: '20rem', right: '0px', bottom: '0px', zIndex: '-1' }}
       alt='rocket'
     />
   );
+};
+const SearhIcon = () => {
+  return <img src='assets/imgs/icon-search.svg' alt='search' />;
+};
+const SendIcon = () => {
+  return <img src='assets/imgs/icon-send.svg' alt='send' />;
 };
 const Home = ({ db }) => {
   const [error, setError] = useState(null);
@@ -135,53 +143,67 @@ const Home = ({ db }) => {
   };
   return (
     <div className={styles.home}>
-      <div className='container'>
-        <header>
+      <header style={{ backgroundImage: 'url(/assets/imgs/bg-pattern-header.svg)' }}>
+        <div className='header-content'>
           <Logo />
           <ConnectionStatus readyState={connected} />
+        </div>
+      </header>
+
+      {isLoading && (
+        <div className='spinner'>
+          <HashLoader color='#03b3ff' />
+        </div>
+      )}
+
+      <main>
+        <div className='container'>
           <div className='top-menu'>
-            <input
-              onChange={handleChange}
-              name='sql-query'
-              placeholder='Enter some SQL query. Ex: “select sqlite_version()”'
-            />
+            <div className='input-control'>
+              <SearhIcon />
+              <input
+                onChange={handleChange}
+                name='sql-query'
+                placeholder='Enter some SQL query. Ex: “select sqlite_version()”'
+                spellCheck='false'></input>
+            </div>
+            <div className='input-control'>
+              <SendIcon />
+              <input
+                onChange={handleChange}
+                name='request-message'
+                placeholder='Enter messages to send request to the server'
+                spellCheck='false'
+                value={reqMsg}
+              />
+            </div>
+
             <div className='button-group'>
               <button onClick={handleLoadDB} className='filled' disabled={isDBLoaded === true}>
                 Load Schema
               </button>
               <button onClick={handleSendReqest} className='filled' disabled={connected !== 1}>
-                Send request
+                Send Request
               </button>
               <button onClick={handleDisconnect} className='filled' disabled={connected !== 1}>
                 Disconnect
               </button>
             </div>
           </div>
-          <input
-            onChange={handleChange}
-            name='request-message'
-            placeholder='Enter messages to send request to the server'
-            value={reqMsg}
-          />
-        </header>
-
-        {isLoading && (
-          <div className='spinner'>
-            <HashLoader color='#03b3ff' />
-          </div>
-        )}
-        <pre className='error'>{(error || '').toString()}</pre>
-        <main>
-          {tblList.length ? (
-            <TableList tblList={tblList} setCurTable={setCurTable} exec={exec} setResults={setResults} />
-          ) : (
-            <></>
-          )}
-          {results.map(({ columns, values }, i) => (
-            <ResultsTable key={i} columns={columns} values={values} />
-          ))}
-        </main>
-      </div>
+          <pre className='error'>{(error || '').toString()}</pre>
+          <section>
+            {tblList.length ? (
+              <TableList tblList={tblList} setCurTable={setCurTable} exec={exec} setResults={setResults} />
+            ) : (
+              <></>
+            )}
+            {results.map(({ columns, values }, i) => (
+              <ResultsTable key={i} columns={columns} values={values} />
+            ))}
+          </section>
+        </div>
+      </main>
+      <GoldCup />
       <Rocket />
     </div>
   );

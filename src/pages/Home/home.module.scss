@@ -1,55 +1,84 @@
 .home :global {
   header {
+    width: 100%;
+    height: 16.2rem;
+    border-bottom-left-radius: 10rem;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    width: 90%;
-
-    .top-menu {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    align-items: center;
+    justify-content: center;
+    .header-content {
+      max-width: 120rem;
       width: 100%;
+      display: flex;
       justify-content: space-between;
-
-      @media (max-width: 960px) {
-        flex-direction: column;
-      }
-
-      input {
+      padding: 0 3.9rem;
+    }
+  }
+  main {
+    .container {
+      flex-direction: column;
+      .top-menu {
         width: 100%;
-        flex-grow: 1;
-      }
-      .button-group {
+        padding: 1rem 1.5rem;
         display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        button {
-          width: 160px;
+        background-color: white;
+        border-radius: 3px;
+        gap: 10px;
+        .input-control {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          min-width: 31rem;
+          margin-left: 1rem;
+          img {
+            width: 24px;
+            height: 24px;
+          }
+          input {
+            padding: 1.6rem 1rem;
+            outline: none;
+            border: none;
+            border-right: 1px solid #6e809833;
+            width: 100%;
+            height: 100%;
+            line-height: 16px;
+            transition: all 0.15s ease-in-out;
+            background: transparent;
+          }
+        }
+
+        .button-group {
+          width: 100%;
+          display: flex;
+          gap: 8px;
         }
       }
-    }
-    input {
-      color: white;
-      padding: 8px;
-      outline: none;
-      border-radius: 3px;
-      border: 1px solid gray;
-      width: 100%;
-      line-height: 25px;
-      transition: all 0.15s ease-in-out;
-      background: transparent;
-
-      &:focus {
-        border-color: var(--primary);
+      section {
+        width: 100%;
+        display: flex;
+        gap: 1rem;
+        margin-top: 5rem;
+        padding: 0rem 0.5rem;
       }
     }
   }
 
-  main {
-    padding-top: 24px;
-    display: flex;
-    gap: 12px;
+  @media (max-width: 1024px) {
+    .container {
+      max-width: 110rem;
+    }
+    .top-menu {
+      flex-direction: column;
+      .button-group {
+        justify-content: center;
+        display: grid;
+        gap: 16px;
+      }
+    }
+  }
+  @media (min-width: 1824px) {
+    .container {
+      max-width: 220rem;
+    }
   }
 }

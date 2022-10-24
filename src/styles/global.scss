@@ -1,13 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700&display=swap');
 @import './mixin/button';
 
+html {
+  font-size: 62.5%;
+}
+
 body {
-  background-color: #00003e;
+  background-color: #202020;
   font-family: 'Urbanist';
   color: white;
 }
 
-* {
+*,
+*::after,
+*::before {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
@@ -18,6 +24,8 @@ body {
 :root {
   --primary: rgba(0, 136, 204);
   --theme: rgba(121, 121, 121, 0.486);
+  --color-violet: #2056cc;
+  --color-light-violet: #358eff;
 }
 
 h1 {
@@ -26,46 +34,22 @@ h1 {
 }
 
 .container {
-  min-height: 100vh;
-  background-size: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
-  margin-right: auto;
-  margin-left: auto;
-}
-@media (min-width: 576px) {
-  .container,
-  .container-sm {
-    max-width: 540px;
-  }
+  max-width: 110rem;
+  width: 100%;
+  position: relative;
+  margin: -3rem auto;
+  display: flex;
+  align-items: center;
 }
 
-@media (min-width: 768px) {
-  .container,
-  .container-md,
-  .container-sm {
-    max-width: 720px;
-  }
+main {
+  max-width: 144rem;
+  width: 100%;
+  margin: 0 auto;
+  height: fit-content;
+  background-color: transparent;
 }
 
-@media (min-width: 992px) {
-  .container,
-  .container-lg,
-  .container-md,
-  .container-sm {
-    max-width: 960px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .container,
-  .container-lg,
-  .container-md,
-  .container-sm,
-  .container-xl {
-    max-width: 1140px;
-  }
-}
 .spinner {
   position: absolute;
   top: 50%;
