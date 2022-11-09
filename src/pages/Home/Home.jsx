@@ -1,52 +1,27 @@
 import { useEffect, useState } from 'react';
+import { GoogleLogin } from 'react-google-login';
 import { HashLoader } from 'react-spinners';
 import ResultsTable from 'components/ResultTable';
 import TableList from 'components/TableList';
 import ConnectionStatus from 'components/ConnectionStatus';
 import { validateJson, isJson } from 'utils/validateJson.js';
+import { MainLayout } from 'layouts/MainLayout';
 import styles from './home.module.scss';
+import { useSelector, useDispatch } from 'react-redux';
+import { setConnectedStatus } from 'slices/quintoSlices';
 const ws = new WebSocket('wss://qa.quinto.games');
 var primaryKeyList = [];
 
-const Logo = () => {
-  return <img src='assets/imgs/logo.png' style={{ width: '170px' }} alt='logo' />;
-};
-
-const GoldCup = () => {
-  return (
-    <img
-      src='assets/imgs/gold-cup.png'
-      style={{ position: 'absolute', width: '20rem', left: '0px', bottom: '0px', zIndex: '-1' }}
-      alt='goldcup'
-    />
-  );
-};
-
-const Rocket = () => {
-  return (
-    <img
-      src='assets/imgs/rocket.png'
-      style={{ position: 'absolute', width: '20rem', right: '0px', bottom: '0px', zIndex: '-1' }}
-      alt='rocket'
-    />
-  );
-};
-const SearhIcon = () => {
-  return <img src='assets/imgs/icon-search.svg' alt='search' />;
-};
-const SendIcon = () => {
-  return <img src='assets/imgs/icon-send.svg' alt='send' />;
-};
 const Home = ({ db }) => {
+  const dispatch = useDispatch();
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
   const [reqMsg, setReqMsg] = useState('');
   const [tblList, setTblList] = useState([]);
   const [curTable, setCurTable] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const [connected, setConnected] = useState(3);
   const [isDBLoaded, setIsDBLoaded] = useState(false);
-
+  const connected = useSelector((state) => state.quintoSlices.connected);
   const exec = (sql) => {
     let results;
     try {
@@ -65,7 +40,11 @@ const Home = ({ db }) => {
 
   const handleLoadDB = () => {
     setIsLoading(true);
-    setTblList(exec("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';"));
+    setTblList(
+      exec(
+        "SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
+      )
+    );
     const initApiCall = { method: 'open_session' };
     setTimeout(() => {
       ws.send(JSON.stringify(initApiCall));
@@ -96,14 +75,14 @@ const Home = ({ db }) => {
 
   const handleDisconnect = () => {
     ws.close();
-    setConnected(ws.readyState);
+    dispatch(setConnectedStatus(ws.readyState));
   };
 
   ws.onopen = (event) => {
-    setConnected(ws.readyState);
+    dispatch(setConnectedStatus(ws.readyState));
   };
   ws.onmessage = async function (event) {
-    setConnected(ws.readyState);
+    dispatch(setConnectedStatus(ws.readyState));
     if (!isJson(event.data)) {
       setError(event.data);
       setIsLoading(false);
@@ -136,20 +115,13 @@ const Home = ({ db }) => {
     setIsLoading(false);
   };
   ws.onerror = (event) => {
-    setConnected(ws.readyState);
+    dispatch(setConnectedStatus(ws.readyState));
   };
   ws.onclose = (event) => {
-    setConnected(ws.readyState);
+    dispatch(setConnectedStatus(ws.readyState));
   };
   return (
-    <div className={styles.home}>
-      <header style={{ backgroundImage: 'url(/assets/imgs/bg-pattern-header.svg)' }}>
-        <div className='header-content'>
-          <Logo />
-          <ConnectionStatus readyState={connected} />
-        </div>
-      </header>
-
+    <MainLayout className={styles.home} title='Homepage'>
       {isLoading && (
         <div className='spinner'>
           <HashLoader color='#03b3ff' />
@@ -160,15 +132,16 @@ const Home = ({ db }) => {
         <div className='container'>
           <div className='top-menu'>
             <div className='input-control'>
-              <SearhIcon />
+              <img src='assets/imgs/icon-search.svg' alt='search' />;
               <input
                 onChange={handleChange}
                 name='sql-query'
                 placeholder='Enter some SQL query. Ex: “select sqlite_version()”'
-                spellCheck='false'></input>
+                spellCheck='false'
+              ></input>
             </div>
             <div className='input-control'>
-              <SendIcon />
+              <img src='assets/imgs/icon-send.svg' alt='send' />
               <input
                 onChange={handleChange}
                 name='request-message'
@@ -179,13 +152,25 @@ const Home = ({ db }) => {
             </div>
 
             <div className='button-group'>
-              <button onClick={handleLoadDB} className='filled' disabled={isDBLoaded === true}>
+              <button
+                onClick={handleLoadDB}
+                className='filled'
+                disabled={isDBLoaded === true}
+              >
                 Load Schema
               </button>
-              <button onClick={handleSendReqest} className='filled' disabled={connected !== 1}>
+              <button
+                onClick={handleSendReqest}
+                className='filled'
+                disabled={connected !== 1}
+              >
                 Send Request
               </button>
-              <button onClick={handleDisconnect} className='filled' disabled={connected !== 1}>
+              <button
+                onClick={handleDisconnect}
+                className='filled'
+                disabled={connected !== 1}
+              >
                 Disconnect
               </button>
             </div>
@@ -193,7 +178,12 @@ const Home = ({ db }) => {
           <pre className='error'>{(error || '').toString()}</pre>
           <section>
             {tblList.length ? (
-              <TableList tblList={tblList} setCurTable={setCurTable} exec={exec} setResults={setResults} />
+              <TableList
+                tblList={tblList}
+                setCurTable={setCurTable}
+                exec={exec}
+                setResults={setResults}
+              />
             ) : (
               <></>
             )}
@@ -203,9 +193,9 @@ const Home = ({ db }) => {
           </section>
         </div>
       </main>
-      <GoldCup />
-      <Rocket />
-    </div>
+      {/* <GoldCup /> */}
+      {/* <Rocket /> */}
+    </MainLayout>
   );
 };
 

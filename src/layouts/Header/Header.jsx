@@ -1,0 +1,21 @@
+import React from 'react';
+import { useSelector } from 'react-redux';
+import ConnectionStatus from 'components/ConnectionStatus';
+import './header.scss';
+
+const Header = () => {
+  const connected = useSelector((state) => state.quintoSlices.connected);
+
+  return (
+    <header
+      style={{ backgroundImage: 'url(/assets/imgs/bg-pattern-header.svg)' }}
+    >
+      <div className='header-content'>
+        <img src='assets/imgs/logo.png' style={{ width: '170px' }} alt='logo' />
+        <ConnectionStatus readyState={connected} />
+      </div>
+    </header>
+  );
+};
+
+export default Header;
