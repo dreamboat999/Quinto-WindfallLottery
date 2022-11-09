@@ -1,7 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import ConnectionStatus from 'components/ConnectionStatus';
+import GoogleLoginButton from 'components/GoogleLoginButton';
 import './header.scss';
+import { useEffect } from 'react';
 
 const Header = () => {
   const connected = useSelector((state) => state.quintoSlices.connected);
@@ -13,6 +15,7 @@ const Header = () => {
       <div className='header-content'>
         <img src='assets/imgs/logo.png' style={{ width: '170px' }} alt='logo' />
         <ConnectionStatus readyState={connected} />
+        <GoogleLoginButton />
       </div>
     </header>
   );

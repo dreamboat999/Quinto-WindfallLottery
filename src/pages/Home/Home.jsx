@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { GoogleLogin } from 'react-google-login';
 import { HashLoader } from 'react-spinners';
 import ResultsTable from 'components/ResultTable';
 import TableList from 'components/TableList';
