@@ -371,5 +371,5 @@ module.exports = IterateNode;
   }
 }
 
-module.exports = IterateNode;
+export default IterateNode;
 
