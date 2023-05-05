@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { IterateNode } from './iterateNode';
+import IterateNode from './iterateNode';
 
 class Home extends Component {
   constructor(props) {
