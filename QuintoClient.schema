@@ -1,0 +1,464 @@
+DROP TABLE if EXISTS demo;
+DROP TABLE IF EXISTS avatars;
+DROP TABLE IF EXISTS client;
+DROP TABLE IF EXISTS client_balances;
+DROP TABLE IF EXISTS deposit_addresses;
+DROP TABLE IF EXISTS journal;
+DROP TABLE IF EXISTS site_info;
+DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS tabs;
+DROP TABLE IF EXISTS user_params;
+DROP TABLE IF EXISTS withdrawal_addresses;
+
+DROP TABLE IF EXISTS bingo_defs;
+DROP TABLE IF EXISTS bingo_cards;
+DROP TABLE IF EXISTS bingo_calls;
+DROP TABLE IF EXISTS bingo_games;
+
+DROP TABLE IF EXISTS lottery_defs;
+DROP TABLE IF EXISTS lottery_games;
+DROP TABLE IF EXISTS lottery_carts;
+DROP TABLE IF EXISTS lottery_tickets;
+DROP TABLE IF EXISTS lottery_picks;
+DROP TABLE IF EXISTS lottery_pools;
+DROP TABLE IF EXISTS lottery_pool_members;
+
+DROP TABLE IF EXISTS windfall_presales;
+
+DROP TABLE IF EXISTS trimorra_defs;
+DROP TABLE IF EXISTS trimorra_seeding;
+DROP TABLE IF EXISTS trimorra_tiers;
+DROP TABLE IF EXISTS trimorra_rooms;
+DROP TABLE IF EXISTS trimorra_players;
+DROP TABLE IF EXISTS trimorra_games;
+DROP TABLE IF EXISTS trimorra_grouping;
+DROP TABLE IF EXISTS trimorra_winners;
+DROP TABLE IF EXISTS trimorra_payouts;
+
+DROP INDEX if EXISTS trimorra_player_ux;
+DROP VIEW IF EXISTS trimorra_waiting;
+
+CREATE TABLE IF NOT EXISTS site_info (
+  site_id       INT PRIMARY KEY,
+  name          VARCHAR(20),
+  delay         INT,
+  msg           TEXT,
+  status        VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS user_params (
+  section VARCHAR(128),
+  ident   VARCHAR(128),
+  value   VARCHAR(1024),
+  
+  PRIMARY KEY (section, ident)
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+  ref_id      varchar(20) not null PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS client (
+  session_key   INT NOT NULL PRIMARY KEY, 
+  status        VARCHAR(10),
+  client_ref    VARCHAR(8), -- NULL until login, can be used as a foreign key
+  signup_time   DATETIME,
+  login_type    VARCHAR(20),
+  
+  -- Authentication Information
+  authentication  VARCHAR(20),
+  totp_qrcode     VARCHAR(128),
+  totp_secret     VARCHAR(20),
+
+
+  -- User current email on file
+  email_address   VARCHAR(320),
+  email_opt_out   BOOLEAN DEFAULT FALSE,
+
+  -- Provably Fair Information
+  encrypted_hash  VARCHAR(64),
+  old_encrypted   VARCHAR(64),
+  server_hash     VARCHAR(64),
+  client_phrase   VARCHAR(128),
+  nonce           INT,
+  can_reveal      BOOLEAN DEFAULT FALSE,
+  
+  -- Cashback Information
+  reward_pct      NUMERIC,
+  reward_progress NUMERIC
+);
+
+CREATE TABLE IF NOT EXISTS avatars (
+  client_ref    VARCHAR(8)  NOT NULL PRIMARY KEY, 
+  user_name     VARCHAR(128),
+  anonymous     BOOLEAN DEFAULT FALSE,
+  avatar        VARCHAR(128)
+);
+ 
+CREATE TABLE IF NOT EXISTS client_balances (
+  currency_type VARCHAR(6) PRIMARY KEY,
+  seq_nbr       INT,    -- ordering within fund type
+  fund_type     VARCHAR(6), -- CRYPTO, FIAT, HOUSE, NONE
+  description   VARCHAR(32),
+  exchange_rate NUMERIC,
+  scale         INT,
+  status        VARCHAR(15),
+  
+  -- Balance/Fees  
+  balance       NUMERIC,
+  faucet        NUMERIC, -- In house play only balance (non-withdrawable) used for QVC only
+
+  -- Withdraw Data
+  withdrawable    NUMERIC,
+  withdrawal_fee  NUMERIC,
+  min_withdrawal  NUMERIC,
+
+  -- Depsoit Data
+  address_available BOOLEAN DEFAULT FALSE,
+  deposit_credit    NUMERIC DEFAULT NULL -- Only used on QVC balance otherwise null
+);
+
+CREATE TABLE IF NOT EXISTS deposit_addresses (
+  currency_type VARCHAR(6),
+  address       VARCHAR(64),
+  qrcode        VARCHAR(256),
+  
+  last_used     DATETIME,
+  
+  PRIMARY KEY (currency_type, address)
+);
+
+CREATE TABLE IF NOT EXISTS withdrawal_addresses (
+  currency_type VARCHAR(6),
+  address       VARCHAR(64),
+  nickname      VARCHAR(32),
+  
+  exclusive     BOOLEAN DEFAULT FALSE,
+  doomsday      BOOLEAN DEFAULT FALSE,
+  
+  last_used     DATETIME,
+  
+  PRIMARY KEY (currency_type, address)
+);
+
+CREATE TABLE IF NOT EXISTS journal (
+  cashier_id    VARCHAR(16),
+  currency_type VARCHAR(6),
+  txn_type      VARCHAR(20),
+  txn_info      VARCHAR(256),
+  txn_date      DATETIME,
+  status        VARCHAR(20),
+  amount        NUMERIC,
+
+  PRIMARY KEY (cashier_id, currency_type)
+);
+
+CREATE TABLE IF NOT EXISTS tabs (
+  parent_name   VARCHAR(25) NOT NULL,
+  tab_name      VARCHAR(25) NOT NULL,
+  tab_descr     VARCHAR(25),
+  ord           INT,
+  ref_id        VARCHAR(20),
+  
+  prize_title   VARCHAR(25),
+  prize_amt     NUMERIC,
+  
+  display_type  VARCHAR(25),
+  display_title VARCHAR(25),
+  display_time  DATETIME,
+  
+  PRIMARY KEY (parent_name, tab_name)
+);
+
+-- BINGO GAME TABLES
+
+CREATE TABLE IF NOT EXISTS bingo_defs (
+  def_id         VARCHAR(20) PRIMARY KEY,
+  card_count     INTEGER,
+  encrypted_hash VARCHAR(128),
+  game_hash      VARCHAR(128),
+  game_nbr       INTEGER,
+  game_phrase    VARCHAR(128),
+  game_state     VARCHAR(8),
+  game_time      DATETIME,
+  hash_status    VARCHAR(8),
+  player_count   INTEGER,
+  best           VARCHAR(12)
+);
+
+CREATE TABLE IF NOT EXISTS bingo_games (
+    def_id        VARCHAR(20) NOT NULL,
+    game_id       VARCHAR(20) NOT NULL,
+    game_nbr      INT NOT NULL,
+    game_name     VARCHAR(50) NOT NULL,
+    game_status   VARCHAR(20) NOT NULL,
+    game_time     VARCHAR(20) NOT NULL, 
+    participant   BOOLEAN DEFAULT FALSE NOT NULL,
+    
+    buyin         NUMERIC(8, 2),
+    buyin_allowed BOOLEAN DEFAULT FALSE NOT NULL,
+    max_cards     INT,              -- NULL = No Limit
+    
+    player_qty  INT DEFAULT 0 NOT NULL,
+    card_qty    INT DEFAULT 0 NOT NULL,
+
+    game_payout     NUMERIC(18, 2) NOT NULL,
+    bonus_ball_amt  NUMERIC(18, 2),
+
+    twelve_amt      NUMERIC(18, 2),
+    jackpot_amt     NUMERIC(18, 2),
+    
+    three_up_win    NUMERIC(18, 2),
+    three_up_lose   NUMERIC(18, 2),
+    
+    three_in_win    NUMERIC(18, 2),
+    three_in_lose   NUMERIC(18, 2),
+    
+  -- Game Results Information
+    game_hash VARCHAR(64),
+    
+    PRIMARY KEY (def_id, game_id)
+  );
+
+CREATE TABLE IF NOT EXISTS bingo_cards (
+  def_id    VARCHAR(20) NOT NULL,
+  card_nbr  INT NOT NULL,
+  strip_nbr INT,
+  cells     TEXT NOT NULL,
+  away      INT,
+  away_text VARCHAR(10),
+  
+  PRIMARY KEY (def_id, card_nbr)
+);
+
+CREATE TABLE IF NOT EXISTS bingo_calls (
+  def_id    VARCHAR(20) PRIMARY KEY NOT NULL,
+  ball_nbr  INT,
+  call_nbr  INT,
+  sound     VARCHAR(20),
+  seq_nbr   INT
+);
+
+-- LOTTERY GAME TABLES
+
+CREATE TABLE IF NOT EXISTS lottery_games (
+  def_id        VARCHAR(20) NOT NULL,
+  game_id       VARCHAR(20) NOT NULL,
+  game_nbr      INT NOT NULL,
+  game_name     VARCHAR(50) NOT NULL,
+  game_status   VARCHAR(20) NOT NULL,
+  game_time     VARCHAR(20), -- There is no game time for Windfall Lottery
+  participant   BOOLEAN DEFAULT FALSE NOT NULL,
+  
+  buyin         NUMERIC(8, 2),
+  buyin_allowed BOOLEAN DEFAULT FALSE NOT NULL,
+  allow_pools   BOOLEAN DEFAULT FALSE NOT NULL,
+  pool_fee      NUMERIC(8, 2),
+  
+  max_games     INT DEFAULT 1 NOT NULL,
+  max_picks     INT NOT NULL,   -- NOTE: This this is value is for the maximum tickets in Windfall Lottery
+  jackpot_amt   NUMERIC(18, 2) NOT NULL,
+  
+  player_qty    INT DEFAULT 0 NOT NULL,
+  ticket_qty    INT DEFAULT 0 NOT NULL,
+  pick_qty      INT DEFAULT 0 NOT NULL,
+
+-- Used for Windfall Lottery only
+  remaining     INT,
+  total_tickets INT,
+  aggregate_amt NUMERIC(18, 2), 
+  
+-- Game Results Information
+  game_hash VARCHAR(64),
+  game_draw VARCHAR(20),
+  
+  PRIMARY KEY (def_id, game_id)
+);
+
+-- NOTE: Winfall Lottery does not use lottery_carts
+CREATE TABLE IF NOT EXISTS lottery_carts (
+  def_id    VARCHAR(20)  NOT NULL,
+  ticket_id VARCHAR(15)  NOT NULL,
+  pick_qty  INT,
+  
+  PRIMARY KEY (def_id, ticket_id)
+);
+
+CREATE TABLE IF NOT EXISTS lottery_tickets (
+  def_id        VARCHAR(20) NOT NULL,
+  game_id       VARCHAR(20) NOT NULL,
+  
+  client_ref    VARCHAR(8)    NOT NULL,
+  
+  ticket_id     VARCHAR(15) NOT NULL,
+  pool_id       VARCHAR(20),
+  ticket_type   VARCHAR(10) NOT NULL,
+  ticket_time   DATETIME    NOT NULL,
+  seq_nbr       INT         NOT NULL,
+  pick_qty      INT         NOT NULL,
+
+  PRIMARY KEY (def_id, game_id, ticket_id)
+);
+
+-- NOTE: lottery picks are tied to a ticket_id and can span multiple games
+CREATE TABLE IF NOT EXISTS lottery_picks (
+  def_id    VARCHAR(20) NOT NULL,
+  ticket_id VARCHAR(15) NOT NULL,
+  seq_nbr   INT         NOT NULL,
+  pick_type VARCHAR(10),
+  pick      VARCHAR(20) NOT NULL,
+  
+  PRIMARY KEY (def_id, ticket_id, seq_nbr)
+);
+
+CREATE TABLE IF NOT EXISTS lottery_pools (
+  def_id        VARCHAR(20)   NOT NULL,
+  game_id       VARCHAR(20)   NOT NULL,
+  pool_id       VARCHAR(20)   NOT NULL,
+  pool_ref      VARCHAR(12)   NOT NULL,
+  pool_name     VARCHAR(192)  NOT NULL,
+
+  pool_time     DATETIME      NOT NULL,
+  is_private    BOOLEAN       NOT NULL,
+  is_open       BOOLEAN       NOT NULL,
+  
+  min_picks     INT,
+  max_picks     INT,
+  
+  participant   BOOLEAN DEFAULT FALSE NOT NULL,
+  min_wager     INT,
+  max_wager     INT,
+  
+  members       INT DEFAULT 0 NOT NULL,
+  tickets       INT DEFAULT 0 NOT NULL,
+  picks         INT DEFAULT 0 NOT NULL,
+  
+  PRIMARY KEY (def_id, game_id, pool_id)
+);
+
+CREATE TABLE IF NOT EXISTS lottery_pool_members (
+  def_id      VARCHAR(20) NOT NULL,
+  pool_id     VARCHAR(20) NOT NULL,
+  client_ref  VARCHAR(8)  NOT NULL,
+  
+  when_joined DATETIME    NOT NULL,
+  picks       INT DEFAULT 0 NOT NULL,
+  
+  PRIMARY KEY (def_id, pool_id, client_ref)
+);
+
+-- WINDFALL LOTTERY (UNIQUE TABLE)
+
+CREATE TABLE IF NOT EXISTS windfall_presales (
+  def_id        VARCHAR(20)     NOT NULL,
+  client_ref    VARCHAR(8)      NOT NULL,
+  purchased     DATETIME        NOT NULL,
+  trx_id        VARCHAR(15)     NOT NULL,
+  ticket_qty    INT,
+  
+  PRIMARY KEY (def_id, client_ref, purchased)
+);
+
+-- TRIMORRA GAME TABLES
+
+CREATE TABLE IF NOT EXISTS trimorra_defs (
+  def_id        VARCHAR(20)   PRIMARY KEY,
+  
+  master_hash   VARCHAR(32),
+  fee_pct       NUMERIC(8, 4)  NOT NULL,
+  max_fee       NUMERIC(8, 2)  NOT NULL,    
+  est_jackpot   NUMERIC(12, 2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS trimorra_seeding (
+  seq_nbr       INT   PRIMARY KEY,
+  when_created  DATETIME,
+  
+  seed   VARCHAR(256),
+  hash   VARCHAR(32)
+);
+
+CREATE TABLE IF NOT EXISTS trimorra_tiers (
+  tier      VARCHAR(8)  PRIMARY KEY,
+  ord       INT,
+  players   INT,
+  rounds    INT
+);
+
+CREATE TABLE IF NOT EXISTS trimorra_rooms (
+  room_id     VARCHAR(20) PRIMARY KEY,
+  tier        VARCHAR(8),
+  players     INT,
+  buyin       NUMERIC(8,2),
+  aggregate   NUMERIC(10,4),
+  waiting     INT,
+  participant BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS trimorra_payouts (
+  tier  VARCHAR(8) NOT NULL,
+  round VARCHAR(8) NOT NULL,
+  
+  payout   INT,
+  winners  INT  NOT NULL,
+  
+  PRIMARY KEY (tier, round)
+);
+
+CREATE TABLE IF NOT EXISTS trimorra_players (
+  room_id     VARCHAR(20)   NOT NULL,
+  client_ref  VARCHAR(8)    NOT NULL,
+  wager_id    VARCHAR(12)   NOT NULL,
+  game_id     VARCHAR(10),
+  when_joined DATETIME,
+  payout      NUMERIC(10, 4),
+
+  PRIMARY KEY (room_id, client_ref, wager_id)
+);
+CREATE UNIQUE INDEX trimorra_player_ux on trimorra_players (game_id, client_ref);
+
+CREATE VIEW trimorra_waiting AS
+  SELECT room_id, client_ref, when_joined, COUNT(*) AS qty
+  FROM trimorra_players
+  WHERE game_id IS NULL
+  GROUP BY room_id, client_ref, when_joined
+  ORDER BY when_joined;
+
+CREATE TABLE IF NOT EXISTS trimorra_games (
+  game_id     VARCHAR(10)  NOT NULL PRIMARY KEY,
+  room_id     VARCHAR(20)  NOT NULL,
+  game_time   DATETIME,
+  
+  game_state  VARCHAR(20),
+  game_hash   VARCHAR(24),
+  game_seed   VARCHAR(24),
+  
+  FOREIGN KEY (room_id) REFERENCES trimorra_rooms(room_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS trimorra_grouping (
+  game_id       VARCHAR(10) NOT NULL,
+  tier          VARCHAR(8)  NOT NULL,
+  group_nbr     INT         NOT NULL,
+  line_nbr      INT         NOT NULL,
+  iteration     INT         NOT NULL,
+  client_ref    VARCHAR(8)  NOT NULL,
+  
+  roll          INT,
+  winner        BOOLEAN DEFAULT FALSE NOT NULL,
+  jackpot       BOOLEAN DEFAULT FALSE NOT NULL,
+
+  PRIMARY KEY (game_id, tier, group_nbr, line_nbr, iteration),
+  FOREIGN KEY (game_id) REFERENCES trimorra_games(game_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS trimorra_winners (
+  game_id     VARCHAR(10) PRIMARY KEY,
+  client_ref  VARCHAR(8),
+  tier        VARCHAR(8),
+  buyin       NUMERIC(10, 2),
+  player_qty  INT,
+  payout      NUMERIC(10, 4),
+  game_time   DATETIME
+);
+
